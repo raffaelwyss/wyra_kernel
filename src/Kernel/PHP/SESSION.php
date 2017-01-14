@@ -48,5 +48,35 @@ class SESSION extends BaseGetterSetter
     public function __construct()
     {
         $this->data = $_SESSION;
+        $this->loadSessionData($this->data);
+    }
+
+    public function set($name, $value)
+    {
+        parent::set($name, $value);
+        $_SESSION = $this->data;
+        $this->loadSessionData($this->data);
+    }
+
+    public function setAll($data = array())
+    {
+        parent::setAll($data);
+        $_SESSION = $this->data;
+        $this->loadSessionData($this->data);
+    }
+
+    private function loadSessionData($data, $baseString = '')
+    {
+        foreach ($data as $key => $value) {
+            $startString = '';
+            if ($baseString != '') {
+                $startString = $baseString.'.';
+            }
+            if (is_array($value)) {
+                $this->loadSessionData($value, $key);
+            } else {
+                $this->data[$startString.$key] = $value;
+            }
+        }
     }
 }

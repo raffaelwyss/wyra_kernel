@@ -43,7 +43,7 @@ use Wyra\Kernel\Storage\BaseGetterSetter;
  * @copyright   2017 Raffael Wyss. All rights reserved.
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Language extends BaseGetterSetter
+class Config extends BaseGetterSetter
 {
 
     /**
@@ -51,67 +51,58 @@ class Language extends BaseGetterSetter
      *
      * @param string $file
      */
-    public function __construct($language = 'de')
+    public function __construct($file = '../app/config/app.conf')
     {
-        $this->loadLanguageData($language);
+        $this->data = json_decode(file_get_contents($file), true);
+        $this->loadConfigData($this->data, dirname($file));
+        $this->setDefaultConfig();
     }
 
-    public function getText($label, $params = array())
+    private function setDefaultConfig()
     {
-        $label = $this->get($label);
-        return vsprintf($label, $params);
+        if ($this->get('errorReporting') !== '') {
+            error_reporting($this->get('errorReporting'));
+        }
     }
 
     /**
-     * Load the Data from Language-Files
+     * Load the Data from Config-File
      *
      * @param string $data
      * @param string $folder
      * @param string $baseString
      */
-    private function loadLanguageData($language = '')
+    private function loadConfigData($data = array(), $folder = '', $baseString = '')
     {
-
-        // Check the plugin language
-        $plugins = scandir('../src/Plugins');
-        foreach ($plugins as $plugin) {
-            $directory = '../src/Plugin/'.$plugin.'/Language';
-            if (is_dir($directory)) {
-                if ($plugin === '..') {
-                    $plugin = '';
-                }
-                $languagefile = $directory.'/'.$language.'.txt';
-                $languagefileDE = $directory.'/de.txt';
-                if (is_file($languagefile)) {
-                    $this->loadLanguageDataFromFile($languagefile, $plugin);
-                } elseif (is_file($languagefileDE)) {
-                    $this->loadLanguageDataFromFile($languagefileDE, $plugin);
+        foreach ($data AS $key => $value) {
+            $startString = '';
+            if ($baseString != '') {
+                $startString = $baseString.'.';
+            }
+            if (strpos($value, '.conf')) {
+                $installfile = $folder.'/installed/'.$value;
+                if (file_exists($installfile)) {
+                    $filecontent = json_decode(file_get_contents($installfile), true);
                 } else {
-                    throw new \RuntimeException('Language-File not found (Plugin: '.$plugin.')');
+                    $filecontent = json_decode(file_get_contents($folder.'/'.$value), true);
                 }
+                $this->data[$key] = $filecontent;
+                $this->loadConfigData($filecontent, $folder, $key);
+            } else {
+                $this->data[$startString.$key] = $value;
             }
         }
-    }
-
-    /**
-     * Load the language data from the file
-     *
-     * @param string $file
-     * @param string $plugin
-     */
-    private function loadLanguageDataFromFile($file, $plugin = '')
-    {
-        $file = file($file);
-        foreach ($file as $row) {
-            $columns = explode('=', $row);
-            if (count($columns) === 2 and strpos($row, '#') !== 0) {
-                $key = trim($columns[0]);
-                if ($plugin != '') {
-                    $key = $plugin.'.'.$key;
-                }
-                $this->set($key, $columns[1]);
-            }
+        $this->data['rootPath'] = dirname(__DIR__);
+        $this->data['wyraPath'] = realpath('../');
+        $this->data['installed'] = false;
+        if (file_exists($this->data['rootPath'].'/.installed')) {
+            $this->data['installed'] = true;
         }
+        $this->data['loggedin'] = false;
+        if (Kernel::$session->get('wyra.loggedin') === true) {
+            $this->data['loggedin'] = true;
+        }
+        $this->data['baseUrl'] = Kernel::$server->get('baseUrl');
     }
 
 }

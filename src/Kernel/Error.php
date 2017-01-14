@@ -1,13 +1,11 @@
 <?php
 
-namespace Wyra\Kernel\MVC;
+namespace Wyra\Kernel;
+use Wyra\Kernel\MVC\View;
 
-use Wyra\Kernel\Kernel;
-use Exception;
-use RuntimeException;
 
 /**
- * Controller of WyRa
+ * Error-Handling of WyRa
  *
  * Copyright (c) 2017, Raffael Wyss <raffael.wyss@gmail.com>
  * All rights reserved.
@@ -45,85 +43,60 @@ use RuntimeException;
  * @copyright   2017 Raffael Wyss. All rights reserved.
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Controller
+class Error
 {
-    /** @var View|null  */
-    private $view = null;
-
-    /** @var array */
-    private $arguments = array();
 
     /**
-     * Controller constructor.
+     * Register the the class for the handling for fatal errors
+     */
+    public function __construct()
+    {
+        register_shutdown_function(array($this, "handleFatalError"));
+    }
+
+    /**
+     * Return the error in the JSON-Format
      *
-     * @param array $args
+     * @param        $errno
+     * @param        $errstr
+     * @param string $errfile
+     * @param int    $errline
+     * @param array  $errcontext
      */
-    public function __construct($args = array())
+    public function handler($errno, $errstr, $errfile = '', $errline = 0, $errcontext = array())
     {
-        $this->arguments = $args;
-        $this->setView();
-        $this->getView();
-    }
-
-    /**
-     * Anzeige der Daten
-     */
-    public function display($data = array())
-    {
-        if (!isset($this->arguments['Api'])) {
-            throw new RuntimeException('ANZEIGENICHTIMPLEMENTIERT');
-        }
-        switch ($this->arguments['Api']) {
-            case 'smarty':
-                $this->getView()->show($this->getData(), 'smarty', $this->arguments);
-                break;
-            case 'json':
-                $this->getView()->show($this->getData(), 'json');
-                break;
-            default:
-                throw new RuntimeException('ANZEIGENICHTIMPLEMENTIERT');
-                break;
+        $data = array();
+        $data['errno'] = $errno;
+        $data['errstr'] = $errstr;
+        $data['errfile'] = $errfile;
+        $data['errline'] = $errline;
+        $data['errcontext'] = $errcontext;
+        if (Kernel::$get->get('Api') === 'json') {
+            echo json_encode($data);
+        } else {
+            $args = [];
+            $args['errortemplate'] = 'error.tpl';
+            $args['error'] = true;
+            $view = new View();
+            $view->show($data, Kernel::$get->get('Api'), $args);
         }
     }
 
-    public function getData()
-    {
-        return array();
-    }
-
-    protected function addArguments($arguments)
-    {
-        $this->arguments = array_merge($this->arguments, $arguments);
-    }
-
-    protected function addArgument($name, $value)
-    {
-        $this->arguments[$name] = $value;
-    }
-
     /**
-     * return the View-Instance
-     *
-     * @return null|View
+     * Handle the fatal errors
      */
-    private function getView()
+    public function handleFatalError()
     {
-        if ($this->view) {
-            return $this->view;
+        $error = error_get_last();
+        if ($error["type"] === E_ERROR) {
+            $this->handler(
+                $error["type"],
+                $error["message"],
+                $error["file"],
+                $error["line"]
+            );
+
         }
-        throw new Exception(Kernel::$language->getText('FOLGENDEVIEWFEHLT', get_class($this)));
     }
-
-    /**
-     * Set the view-instance
-     */
-    private function setView()
-    {
-        $className = '\\Wyra\\Plugin\\'.$this->arguments['Plugin'].'\\View\\'.$this->arguments['SubPlugin'];
-        $this->view = new $className();
-    }
-
-
-
 
 }

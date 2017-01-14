@@ -1,11 +1,10 @@
 <?php
 
-namespace Wyra\Kernel;
+namespace Wyra\Kernel\Storage;
 
-use Wyra\Kernel\Storage\BaseGetterSetter;
 
 /**
- * Config of WyRa
+ * Storage Getter & Setter Baseclass
  *
  * Copyright (c) 2017, Raffael Wyss <raffael.wyss@gmail.com>
  * All rights reserved.
@@ -43,51 +42,41 @@ use Wyra\Kernel\Storage\BaseGetterSetter;
  * @copyright   2017 Raffael Wyss. All rights reserved.
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Config extends BaseGetterSetter
+abstract class BaseGetterSetter
 {
+    /** @var array Enthält die Daten */
+    protected $data = array();
 
     /**
-     * Config constructor.
+     * @param string $name
      *
-     * @param string $file
+     * @return mixed|null
      */
-    public function __construct($file = '../app/config/app.conf')
+    public function get($name)
     {
-        $this->data = json_decode(file_get_contents($file), true);
-        $this->loadConfigData($this->data, dirname($file));
-        $this->setDefaultConfig();
-    }
-
-    private function setDefaultConfig()
-    {
-        if ($this->get('errorReporting') !== '') {
-            error_reporting($this->get('errorReporting'));
+        if (isset($this->data[$name])) {
+            return $this->data[$name];
         }
+        return null;
     }
 
     /**
-     * Load the Data from Config-File
-     *
-     * @param string $data
-     * @param string $folder
-     * @param string $baseString
+     * @param string $name
+     * @param mixed $value
      */
-    private function loadConfigData($data = '', $folder = '', $baseString = '')
+    public function set($name, $value)
     {
-        foreach ($data AS $key => $value) {
-            $startString = '';
-            if ($baseString != '') {
-                $startString = $baseString.'.';
-            }
-            if (strpos($value, '.conf')) {
-                $filecontent = json_decode(file_get_contents($folder.'/'.$value), true);
-                $this->data[$key] = $filecontent;
-                $this->loadConfigData($filecontent, $folder, $key);
-            } else {
-                $this->data[$startString.$key] = $value;
-            }
-        }
-        $this->data['rootPath'] = dirname(__DIR__);
+        $this->data[$name] = $value;
+    }
+
+    public function getAll()
+    {
+        return $this->data;
+    }
+
+    public function setAll($data = array())
+    {
+        $this->data = $data;
     }
 
 }

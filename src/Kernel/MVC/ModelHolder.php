@@ -1,14 +1,14 @@
 <?php
 
-namespace Wyra\Kernel;
-use Wyra\Kernel\PHP\GET;
-use Wyra\Kernel\PHP\POST;
-use Wyra\Kernel\PHP\SESSION;
+namespace Wyra\Kernel\MVC;
+
+use Wyra\Kernel\DB\DB;
+use Wyra\Kernel\Kernel;
 
 /**
- * Kernel of WyRa
+ * ModelHolder of WyRa
  *
- * Copyright (c) 2016, Raffael Wyss <raffael.wyss@gmail.com>
+ * Copyright (c) 2017, Raffael Wyss <raffael.wyss@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,53 +44,39 @@ use Wyra\Kernel\PHP\SESSION;
  * @copyright   2017 Raffael Wyss. All rights reserved.
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Kernel
+class ModelHolder
 {
+    /** @var array */
+    public $models = [];
 
-    /** @var null|GET */
-    public static $get = null;
-
-    /** @var null|POST */
-    public static $post = null;
-
-    /** @var null|SESSION */
-    public static $session = null;
-
-    /** @var null|Crypt */
-    public static $crypt = null;
-
-    /** @var null|Config */
-    public static $config = null;
-
-    /** @var null|Language */
-    public static $language = null;
-
-    public function start()
+    public function __construct()
     {
-        // Session Start
-        session_start();
+        $this->init();
+    }
 
-        // Initialize Exception & Error-Handler
-        set_error_handler(array(new Error(), 'handler'));
-        set_exception_handler(array(new Exception(), 'handler'));
+    protected function init()
+    {
 
-        // Initialize Language
-        self::$language = new Language();
+    }
 
-        // Load the Parameters & Variables
-        self::$get = new GET();
-        self::$post = new POST();
-        self::$session = new SESSION();
+    /**
+     * @param DB $db
+     */
+    public function createTables()
+    {
+        /** @var Model $model */
+        foreach ($this->models as $model) {
+            $sql = $model->getDBTable()->getCreateStatement();
+            Kernel::$db->query($sql);
+        }
+    }
 
-        // Initialize Config
-        self::$config = new Config();
-
-        // Initialize The Crypter
-        self::$crypt = new Crypt();
-
-        // Start the Routing
-        $route = new Route();
-        $route->route();
+    public function updateIndexes()
+    {
+        /** @var Model $model */
+        foreach ($this->models as $model) {
+            $model->getDBTable()->updateColumnIndexes();
+        }
     }
 
 }

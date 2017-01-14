@@ -2,6 +2,9 @@
 
 namespace Wyra\Kernel;
 
+use Wyra\Kernel\MVC\View;
+
+use PDOException;
 
 /**
  * Exception-Handler of WyRa
@@ -45,18 +48,43 @@ namespace Wyra\Kernel;
 class Exception
 {
     /**
-     * @param \Exception $exception
+     * @param \Exception|PDOException $exception
      */
     public function handler($exception)
     {
         $data = array();
+        $data['message'] = Kernel::$language->get($exception->getMessage());
         $data['code'] = $exception->getCode();
-        $data['message'] = $exception->getMessage();
-        $data['file'] = $exception->getFile();
-        $data['line'] = $exception->getLine();
-        if (Kernel::$config->get('exceptionTracing')) {
-            $data['trace'] = $exception->getTrace();
+
+        if ($data['code'] === 0 and get_class($exception) === 'Wyra\Kernel\Exception\UserException') {
+            $data['code'] = 991;
+        } elseif ($data['code'] === 0 and get_class($exception) === 'Wyra\Kernel\Exception\AppException') {
+            $data['code'] = 993;
+        } elseif ($data['code'] === 0 and get_class($exception) === 'Wyra\Kernel\Exception\FatalException') {
+            $data['code'] = 995;
+        } else {
+            $data['code'] = 990;
         }
-        echo json_encode($data);
+
+        if (Kernel::$config->get('debug')) {
+            $data['file'] = $exception->getFile();
+            $data['line'] = $exception->getLine();
+            if (Kernel::$config->get('exceptionTracing')) {
+                $data['trace'] = $exception->getTrace();
+            }
+        } elseif ($data['code'] === 900 or $data['code'] === 990) {
+            $data['message'] = Kernel::$language->get('VERARBEITUNGSFEHLER');
+        }
+
+
+        if (Kernel::$get->get('Api') === 'json') {
+            echo json_encode($data);
+        } else {
+            $args = [];
+            $args['errortemplate'] = 'exception.tpl';
+            $args['error'] = true;
+            $view = new View();
+            $view->show($data, Kernel::$get->get('Api'), $args);
+        }
     }
 }

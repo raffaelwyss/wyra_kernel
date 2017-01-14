@@ -1,11 +1,14 @@
 <?php
 
-namespace Wyra\Kernel\PHP;
-use Wyra\Kernel\Storage\BaseGetterSetter;
+namespace Wyra\Kernel\MVC;
 
+use Wyra\Kernel\Kernel;
+use RuntimeException;
+use Wyra\Kernel\View\ViewJSON;
+use Wyra\Kernel\View\ViewSMARTY;
 
 /**
- * POST-Variables for WyRa
+ * View of WyRa
  *
  * Copyright (c) 2017, Raffael Wyss <raffael.wyss@gmail.com>
  * All rights reserved.
@@ -43,10 +46,30 @@ use Wyra\Kernel\Storage\BaseGetterSetter;
  * @copyright   2017 Raffael Wyss. All rights reserved.
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class POST extends BaseGetterSetter
+class View
 {
-    public function __construct()
+    public function show($data, $api = 'json', $args = array())
     {
-        $this->data = $_POST;
+        switch ($api) {
+            case 'json':
+                $viewJson = new ViewJSON();
+                $viewJson->show($data);
+                break;
+            case 'smarty':
+                $viewHTML = new ViewSMARTY();
+                $viewHTML->show($data, $args);
+                break;
+            default:
+                throw new RuntimeException(Kernel::$language->getText('AUSGABEFORMATNICHTIMPLEMENTIERT'));
+                break;
+        }
+    }
+
+    public function getFormStructure()
+    {
+        $data = array();
+        $data['config'] = array();
+        $data['elements'] = array();
+        return $data;
     }
 }

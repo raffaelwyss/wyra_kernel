@@ -1,9 +1,11 @@
 <?php
 
-namespace Wyra\Kernel;
+namespace Wyra\Kernel\PHP;
+use Wyra\Kernel\Storage\BaseGetterSetter;
+
 
 /**
- * Error-Handling of WyRa
+ * POST-Variables for WyRa
  *
  * Copyright (c) 2017, Raffael Wyss <raffael.wyss@gmail.com>
  * All rights reserved.
@@ -41,53 +43,16 @@ namespace Wyra\Kernel;
  * @copyright   2017 Raffael Wyss. All rights reserved.
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Error
+class POST extends BaseGetterSetter
 {
-
-    /**
-     * Register the the class for the handling for fatal errors
-     */
     public function __construct()
     {
-        register_shutdown_function(array($this, "handleFatalError"));
-    }
-
-    /**
-     * Return the error in the JSON-Format
-     *
-     * @param        $errno
-     * @param        $errstr
-     * @param string $errfile
-     * @param int    $errline
-     * @param array  $errcontext
-     */
-    public function handler($errno, $errstr, $errfile = '', $errline = 0, $errcontext = array())
-    {
-        $data = array();
-        $data['errno'] = $errno;
-        $data['errstr'] = $errstr;
-        $data['errfile'] = $errfile;
-        $data['errline'] = $errline;
-        $data['errcontext'] = $errcontext;
-        echo json_encode($data);
-
-    }
-
-    /**
-     * Handle the fatal errors
-     */
-    public function handleFatalError()
-    {
-        $error = error_get_last();
-        if ($error["type"] === E_ERROR) {
-            $this->handler(
-                $error["type"],
-                $error["message"],
-                $error["file"],
-                $error["line"]
-            );
-
+        $dataStream	= file_get_contents("php://input");
+        if (!empty($dataStream)) {
+            $this->data	= json_decode($dataStream, true);
+        } else {
+            $this->data = $_POST;
         }
-    }
 
+    }
 }

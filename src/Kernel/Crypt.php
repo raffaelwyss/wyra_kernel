@@ -1,10 +1,8 @@
 <?php
 
-namespace Wyra\Kernel\Storage;
-
 
 /**
- * Storage Getter & Setter Baseclass
+ * Crypt of WyRa
  *
  * Copyright (c) 2017, Raffael Wyss <raffael.wyss@gmail.com>
  * All rights reserved.
@@ -42,31 +40,46 @@ namespace Wyra\Kernel\Storage;
  * @copyright   2017 Raffael Wyss. All rights reserved.
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-abstract class BaseGetterSetter
+
+namespace Wyra\Kernel;
+
+
+class Crypt
 {
-    /** @var array Enthält die Daten */
-    protected $data = array();
+    private $key = 'thisismykeydkehg';
+    private $cypher = MCRYPT_RIJNDAEL_256;
+    private $mode = MCRYPT_MODE_CBC;
+    private $rand = MCRYPT_RAND;
 
     /**
-     * @param string $name
+     * Crypting Data
      *
-     * @return mixed|null
+     * @param string $data
+     *
+     * @return string
      */
-    public function get($name)
+    public function crypt($data)
     {
-        if (isset($this->data[$name])) {
-            return $this->data[$name];
-        }
-        return null;
+        $iv_size = mcrypt_get_iv_size($this->cypher, $this->mode);
+        $iv = mcrypt_create_iv($iv_size, $this->rand);
+        $ciphertext = mcrypt_encrypt($this->cypher, $this->key, $data, $this->mode, $iv);
+        $ciphertext = $iv . $ciphertext;
+        return base64_encode($ciphertext);
     }
 
     /**
-     * @param string $name
-     * @param mixed $value
+     * Decripting Data
+     *
+     * @param string $data
+     *
+     * @return string
      */
-    public function set($name, $value)
+    public function decrypt($data)
     {
-        $this->data[$name] = $value;
+        $iv_size = mcrypt_get_iv_size($this->cypher, $this->mode);
+        $ciphertext = base64_decode($data);
+        $iv = substr($ciphertext, 0, $iv_size);
+        $ciphertext = substr($ciphertext, $iv_size);
+        return trim(mcrypt_decrypt($this->cypher, $this->key, $ciphertext, $this->mode, $iv));
     }
-
 }

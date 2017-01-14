@@ -1,8 +1,15 @@
 <?php
 
+namespace Wyra\Kernel;
+
+use Wyra\Kernel\DB\DB;
+use Wyra\Kernel\PHP\GET;
+use Wyra\Kernel\PHP\POST;
+use Wyra\Kernel\PHP\SERVER;
+use Wyra\Kernel\PHP\SESSION;
 
 /**
- * Crypt of WyRa
+ * Kernel of WyRa
  *
  * Copyright (c) 2017, Raffael Wyss <raffael.wyss@gmail.com>
  * All rights reserved.
@@ -40,38 +47,70 @@
  * @copyright   2017 Raffael Wyss. All rights reserved.
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-
-namespace Wyra\Kernel;
-
-
-class Crypt
+class Kernel
 {
-    private $key = 'thisismykeydkehg';
-    private $cypher = MCRYPT_RIJNDAEL_256;
-    private $mode = MCRYPT_MODE_ECB;
-    private $rand = MCRYPT_RAND;
+    /** @var null|GET */
+    public static $get = null;
 
-    /**
-     * Crypting Data
-     *
-     * @param string $data
-     *
-     * @return string
-     */
-    public function crypt($data)
-    {
-        return mcrypt_encrypt($this->cypher, $this->key, $data, $this->mode);
-    }
+    /** @var null|POST */
+    public static $post = null;
 
-    /**
-     * Decripting Data
-     *
-     * @param string $data
-     *
-     * @return string
-     */
-    public function decrypt($data)
+    /** @var null|SESSION */
+    public static $session = null;
+
+    /** @var null|Crypt */
+    public static $crypt = null;
+
+    /** @var null|Config */
+    public static $config = null;
+
+    /** @var null|Language */
+    public static $language = null;
+
+    /** @var null|SERVER */
+    public static $server = null;
+
+    /** @var null|DB */
+    public static $db = null;
+
+    /** @var null|double */
+    public static $startTime = null;
+    
+    public function start()
     {
-        return mcrypt_decrypt($this->cypher, $this->key, $data, $this->mode);
+        // Session Start
+        session_start();
+
+        // Startzeit merken
+        self::$startTime = microtime(true);
+
+        // Initialize Exception & Error-Handler
+        set_error_handler(array(new Error(), 'handler'));
+        set_exception_handler(array( new Exception(), 'handler'));
+
+        // Initialize Language
+        self::$language = new Language();
+
+        // Load the Parameters & Variables
+        self::$server = new SERVER();
+        self::$get = new GET();
+        self::$post = new POST();
+        self::$session = new SESSION();
+        self::$db = new DB();
+
+        // Initialize Config
+        self::$config = new Config();
+
+        // Initialize The Crypter
+        self::$crypt = new Crypt();
+
+        // Connect to DB
+        if (self::$config->get('installed')) {
+            self::$db->connect(self::$config->get('db'));
+        }
+
+        // Start the Routing
+        $route = new Route();
+        $route->route();
     }
 }

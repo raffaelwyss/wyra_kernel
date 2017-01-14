@@ -1,8 +1,11 @@
 <?php
 
+namespace Wyra\Kernel\PHP;
+
+use Wyra\Kernel\Storage\BaseGetterSetter;
 
 /**
- * Routing of WyRa
+ * GET-Variables for WyRa
  *
  * Copyright (c) 2017, Raffael Wyss <raffael.wyss@gmail.com>
  * All rights reserved.
@@ -40,60 +43,16 @@
  * @copyright   2017 Raffael Wyss. All rights reserved.
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-
-namespace Wyra\Kernel;
-
-use Wyra\Kernel\MVC\Controller;
-
-class Route
+class SERVER extends BaseGetterSetter
 {
-
-    /**
-     * Routing
-     */
-    public function route()
+    public function __construct()
     {
-        // Bestimmung der ganzen Informationen
-        $route = $this->getRoute();
+        $this->data = $_SERVER;
+        if (empty($this->get('HTTPS'))) {
+            $this->data['baseUrl'] = 'http://'.$this->get('HTTP_HOST');
+        } else {
 
-        // Klasse aufbauen und ausführen
-        $className = '\\Wyra\\Plugin\\'.$route['Plugin'].'\\Controller\\'.$route['SubPlugin'];
-
-        /** @var Controller $instance */
-        $instance = new $className($route);
-        $instance->display();
-    }
-
-    /**
-     * returning for the routing path
-     *
-     * @return array
-     */
-    private function getRoute()
-    {
-        $return = array();
-        $return['Plugin'] = 'Base';
-        $return['SubPlugin'] = 'Home';
-        $return['Api'] = 'html';
-        $route = explode('|', Kernel::$get->get('route'));
-        foreach ($route as $routeitem) {
-            $routeitemex = explode('=', $routeitem);
-            if (count($routeitemex) > 1) {
-                if (strtolower($routeitemex[0]) === 'plugin') {
-                    $return['Plugin'] = $routeitemex['1'];
-                } else if (strtolower($routeitemex[0]) === 'subplugin') {
-                    $return['SubPlugin'] = $routeitemex['1'];
-                } else if (strtolower($routeitemex[0]) === 'api') {
-                    $return['Api'] = $routeitemex['1'];
-                }else {
-                    $return[strtolower($routeitemex[0])] = $routeitemex[1];
-                }
-            }
+            $this->data['baseUrl'] = 'https://'.$this->get('HTTP_HOST');
         }
-
-
-        return $return;
     }
-
-
 }
