@@ -1,11 +1,12 @@
 <?php
 
-namespace Wyra\Kernel;
+namespace Wyra\Kernel\MVC;
+
 
 /**
- * Kernel of WyRa
+ * Model of WyRa
  *
- * Copyright (c) 2016, Raffael Wyss <raffael.wyss@gmail.com>
+ * Copyright (c) 2017, Raffael Wyss <raffael.wyss@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,12 +42,7 @@ namespace Wyra\Kernel;
  * @copyright   2017 Raffael Wyss. All rights reserved.
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Kernel
+class Model
 {
-
-    public function start()
-    {
-        echo 'Start';
-    }
 
 }

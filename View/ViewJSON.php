@@ -1,11 +1,12 @@
 <?php
 
-namespace Wyra\Kernel;
+namespace Wyra\Kernel\View;
+
 
 /**
- * Kernel of WyRa
+ * View of WyRa
  *
- * Copyright (c) 2016, Raffael Wyss <raffael.wyss@gmail.com>
+ * Copyright (c) 2017, Raffael Wyss <raffael.wyss@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,12 +42,19 @@ namespace Wyra\Kernel;
  * @copyright   2017 Raffael Wyss. All rights reserved.
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Kernel
+class ViewJSON extends View
 {
-
-    public function start()
+    /**
+     * Gibt die Daten vom Json aus
+     *
+     * @param $data
+     */
+    public function show($data, $args = [], $echo = true)
     {
-        echo 'Start';
+        $return = json_encode($data);
+        if ($echo) {
+            echo $return;
+        }
+        return $return;
     }
-
 }

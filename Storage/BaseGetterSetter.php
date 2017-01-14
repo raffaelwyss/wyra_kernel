@@ -1,11 +1,12 @@
 <?php
 
-namespace Wyra\Kernel;
+namespace Wyra\Kernel\Storage;
+
 
 /**
- * Kernel of WyRa
+ * Storage Getter & Setter Baseclass
  *
- * Copyright (c) 2016, Raffael Wyss <raffael.wyss@gmail.com>
+ * Copyright (c) 2017, Raffael Wyss <raffael.wyss@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,12 +42,31 @@ namespace Wyra\Kernel;
  * @copyright   2017 Raffael Wyss. All rights reserved.
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Kernel
+abstract class BaseGetterSetter
 {
+    /** @var array Enthält die Daten */
+    protected $data = array();
 
-    public function start()
+    /**
+     * @param string $name
+     *
+     * @return mixed|null
+     */
+    public function get($name)
     {
-        echo 'Start';
+        if (isset($this->data[$name])) {
+            return $this->data[$name];
+        }
+        return null;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     */
+    public function set($name, $value)
+    {
+        $this->data[$name] = $value;
     }
 
 }

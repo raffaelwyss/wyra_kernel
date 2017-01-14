@@ -3,9 +3,9 @@
 namespace Wyra\Kernel;
 
 /**
- * Kernel of WyRa
+ * Error-Handling of WyRa
  *
- * Copyright (c) 2016, Raffael Wyss <raffael.wyss@gmail.com>
+ * Copyright (c) 2017, Raffael Wyss <raffael.wyss@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,12 +41,53 @@ namespace Wyra\Kernel;
  * @copyright   2017 Raffael Wyss. All rights reserved.
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Kernel
+class Error
 {
 
-    public function start()
+    /**
+     * Register the the class for the handling for fatal errors
+     */
+    public function __construct()
     {
-        echo 'Start';
+        register_shutdown_function(array($this, "handleFatalError"));
+    }
+
+    /**
+     * Return the error in the JSON-Format
+     *
+     * @param        $errno
+     * @param        $errstr
+     * @param string $errfile
+     * @param int    $errline
+     * @param array  $errcontext
+     */
+    public function handler($errno, $errstr, $errfile = '', $errline = 0, $errcontext = array())
+    {
+        $data = array();
+        $data['errno'] = $errno;
+        $data['errstr'] = $errstr;
+        $data['errfile'] = $errfile;
+        $data['errline'] = $errline;
+        $data['errcontext'] = $errcontext;
+        echo json_encode($data);
+
+    }
+
+    /**
+     * Handle the fatal errors
+     */
+    public function handleFatalError()
+    {
+        $error = error_get_last();
+        if ($error["type"] === E_ERROR) {
+            $this->handler(
+                $error["type"],
+                $error["message"],
+                $error["file"],
+                $error["line"]
+            );
+
+        }
     }
 
 }

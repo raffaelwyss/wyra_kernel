@@ -1,11 +1,17 @@
 <?php
 
-namespace Wyra\Kernel;
+namespace Wyra\Kernel\MVC;
+
+use Wyra\Kernel\Kernel;
+use RuntimeException;
+use Wyra\Kernel\View\ViewHTML;
+use Wyra\Kernel\View\ViewJSON;
+use Wyra\Kernel\View\ViewSMARTY;
 
 /**
- * Kernel of WyRa
+ * View of WyRa
  *
- * Copyright (c) 2016, Raffael Wyss <raffael.wyss@gmail.com>
+ * Copyright (c) 2017, Raffael Wyss <raffael.wyss@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,12 +47,22 @@ namespace Wyra\Kernel;
  * @copyright   2017 Raffael Wyss. All rights reserved.
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Kernel
+class View
 {
-
-    public function start()
+    public function show($data, $api = 'json', $args = array())
     {
-        echo 'Start';
+        switch ($api) {
+            case 'json':
+                $viewJson = new ViewJSON();
+                $viewJson->show($data);
+                break;
+            case 'smarty':
+                $viewHTML = new ViewSMARTY();
+                $viewHTML->show($data, $args);
+                break;
+            default:
+                throw new RuntimeException(Kernel::$language->getText('AUSGABEFORMATNICHTIMPLEMENTIERT'));
+                break;
+        }
     }
-
 }

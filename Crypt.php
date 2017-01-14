@@ -1,11 +1,10 @@
 <?php
 
-namespace Wyra\Kernel;
 
 /**
- * Kernel of WyRa
+ * Crypt of WyRa
  *
- * Copyright (c) 2016, Raffael Wyss <raffael.wyss@gmail.com>
+ * Copyright (c) 2017, Raffael Wyss <raffael.wyss@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,12 +40,38 @@ namespace Wyra\Kernel;
  * @copyright   2017 Raffael Wyss. All rights reserved.
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Kernel
-{
 
-    public function start()
+namespace Wyra\Kernel;
+
+
+class Crypt
+{
+    private $key = 'thisismykeydkehg';
+    private $cypher = MCRYPT_RIJNDAEL_256;
+    private $mode = MCRYPT_MODE_ECB;
+    private $rand = MCRYPT_RAND;
+
+    /**
+     * Crypting Data
+     *
+     * @param string $data
+     *
+     * @return string
+     */
+    public function crypt($data)
     {
-        echo 'Start';
+        return mcrypt_encrypt($this->cypher, $this->key, $data, $this->mode);
     }
 
+    /**
+     * Decripting Data
+     *
+     * @param string $data
+     *
+     * @return string
+     */
+    public function decrypt($data)
+    {
+        return mcrypt_decrypt($this->cypher, $this->key, $data, $this->mode);
+    }
 }

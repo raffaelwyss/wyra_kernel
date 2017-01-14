@@ -1,11 +1,10 @@
 <?php
 
-namespace Wyra\Kernel;
 
 /**
- * Kernel of WyRa
+ * Routing of WyRa
  *
- * Copyright (c) 2016, Raffael Wyss <raffael.wyss@gmail.com>
+ * Copyright (c) 2017, Raffael Wyss <raffael.wyss@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,12 +40,60 @@ namespace Wyra\Kernel;
  * @copyright   2017 Raffael Wyss. All rights reserved.
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Kernel
+
+namespace Wyra\Kernel;
+
+use Wyra\Kernel\MVC\Controller;
+
+class Route
 {
 
-    public function start()
+    /**
+     * Routing
+     */
+    public function route()
     {
-        echo 'Start';
+        // Bestimmung der ganzen Informationen
+        $route = $this->getRoute();
+
+        // Klasse aufbauen und ausführen
+        $className = '\\Wyra\\Plugin\\'.$route['Plugin'].'\\Controller\\'.$route['SubPlugin'];
+
+        /** @var Controller $instance */
+        $instance = new $className($route);
+        $instance->display();
     }
+
+    /**
+     * returning for the routing path
+     *
+     * @return array
+     */
+    private function getRoute()
+    {
+        $return = array();
+        $return['Plugin'] = 'Base';
+        $return['SubPlugin'] = 'Home';
+        $return['Api'] = 'html';
+        $route = explode('|', Kernel::$get->get('route'));
+        foreach ($route as $routeitem) {
+            $routeitemex = explode('=', $routeitem);
+            if (count($routeitemex) > 1) {
+                if (strtolower($routeitemex[0]) === 'plugin') {
+                    $return['Plugin'] = $routeitemex['1'];
+                } else if (strtolower($routeitemex[0]) === 'subplugin') {
+                    $return['SubPlugin'] = $routeitemex['1'];
+                } else if (strtolower($routeitemex[0]) === 'api') {
+                    $return['Api'] = $routeitemex['1'];
+                }else {
+                    $return[strtolower($routeitemex[0])] = $routeitemex[1];
+                }
+            }
+        }
+
+
+        return $return;
+    }
+
 
 }

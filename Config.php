@@ -2,10 +2,12 @@
 
 namespace Wyra\Kernel;
 
+use Wyra\Kernel\Storage\BaseGetterSetter;
+
 /**
- * Kernel of WyRa
+ * Config of WyRa
  *
- * Copyright (c) 2016, Raffael Wyss <raffael.wyss@gmail.com>
+ * Copyright (c) 2017, Raffael Wyss <raffael.wyss@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,12 +43,51 @@ namespace Wyra\Kernel;
  * @copyright   2017 Raffael Wyss. All rights reserved.
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Kernel
+class Config extends BaseGetterSetter
 {
 
-    public function start()
+    /**
+     * Config constructor.
+     *
+     * @param string $file
+     */
+    public function __construct($file = '../app/config/app.conf')
     {
-        echo 'Start';
+        $this->data = json_decode(file_get_contents($file), true);
+        $this->loadConfigData($this->data, dirname($file));
+        $this->setDefaultConfig();
+    }
+
+    private function setDefaultConfig()
+    {
+        if ($this->get('errorReporting') !== '') {
+            error_reporting($this->get('errorReporting'));
+        }
+    }
+
+    /**
+     * Load the Data from Config-File
+     *
+     * @param string $data
+     * @param string $folder
+     * @param string $baseString
+     */
+    private function loadConfigData($data = '', $folder = '', $baseString = '')
+    {
+        foreach ($data AS $key => $value) {
+            $startString = '';
+            if ($baseString != '') {
+                $startString = $baseString.'.';
+            }
+            if (strpos($value, '.conf')) {
+                $filecontent = json_decode(file_get_contents($folder.'/'.$value), true);
+                $this->data[$key] = $filecontent;
+                $this->loadConfigData($filecontent, $folder, $key);
+            } else {
+                $this->data[$startString.$key] = $value;
+            }
+        }
+        $this->data['rootPath'] = dirname(__DIR__);
     }
 
 }

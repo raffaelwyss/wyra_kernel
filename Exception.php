@@ -2,10 +2,11 @@
 
 namespace Wyra\Kernel;
 
+
 /**
- * Kernel of WyRa
+ * Exception-Handler of WyRa
  *
- * Copyright (c) 2016, Raffael Wyss <raffael.wyss@gmail.com>
+ * Copyright (c) 2017, Raffael Wyss <raffael.wyss@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,12 +42,21 @@ namespace Wyra\Kernel;
  * @copyright   2017 Raffael Wyss. All rights reserved.
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Kernel
+class Exception
 {
-
-    public function start()
+    /**
+     * @param \Exception $exception
+     */
+    public function handler($exception)
     {
-        echo 'Start';
+        $data = array();
+        $data['code'] = $exception->getCode();
+        $data['message'] = $exception->getMessage();
+        $data['file'] = $exception->getFile();
+        $data['line'] = $exception->getLine();
+        if (Kernel::$config->get('exceptionTracing')) {
+            $data['trace'] = $exception->getTrace();
+        }
+        echo json_encode($data);
     }
-
 }
