@@ -1,6 +1,9 @@
 <?php
 
 namespace Wyra\Kernel;
+use Wyra\Kernel\PHP\GET;
+use Wyra\Kernel\PHP\POST;
+use Wyra\Kernel\PHP\SESSION;
 
 /**
  * Kernel of WyRa
@@ -44,9 +47,50 @@ namespace Wyra\Kernel;
 class Kernel
 {
 
+    /** @var null|GET */
+    public static $get = null;
+
+    /** @var null|POST */
+    public static $post = null;
+
+    /** @var null|SESSION */
+    public static $session = null;
+
+    /** @var null|Crypt */
+    public static $crypt = null;
+
+    /** @var null|Config */
+    public static $config = null;
+
+    /** @var null|Language */
+    public static $language = null;
+
     public function start()
     {
-        echo 'Start';
+        // Session Start
+        session_start();
+
+        // Initialize Exception & Error-Handler
+        set_error_handler(array(new Error(), 'handler'));
+        set_exception_handler(array(new Exception(), 'handler'));
+
+        // Initialize Language
+        self::$language = new Language();
+
+        // Load the Parameters & Variables
+        self::$get = new GET();
+        self::$post = new POST();
+        self::$session = new SESSION();
+
+        // Initialize Config
+        self::$config = new Config();
+
+        // Initialize The Crypter
+        self::$crypt = new Crypt();
+
+        // Start the Routing
+        $route = new Route();
+        $route->route();
     }
 
 }

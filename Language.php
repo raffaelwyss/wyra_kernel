@@ -73,8 +73,8 @@ class Language extends BaseGetterSetter
     {
 
         // Check the plugin language
-        $plugins = scandir('../src/Plugin');
-        foreach ($plugins AS $plugin) {
+        $plugins = scandir('../src/Plugins');
+        foreach ($plugins as $plugin) {
             $directory = '../src/Plugin/'.$plugin.'/Language';
             if (is_dir($directory)) {
                 if ($plugin === '..') {
@@ -84,7 +84,7 @@ class Language extends BaseGetterSetter
                 $languagefileDE = $directory.'/de.txt';
                 if (is_file($languagefile)) {
                     $this->loadLanguageDataFromFile($languagefile, $plugin);
-                } else if (is_file($languagefileDE)) {
+                } elseif (is_file($languagefileDE)) {
                     $this->loadLanguageDataFromFile($languagefileDE, $plugin);
                 } else {
                     throw new \RuntimeException('Language-File not found (Plugin: '.$plugin.')');
@@ -102,9 +102,9 @@ class Language extends BaseGetterSetter
     private function loadLanguageDataFromFile($file, $plugin = '')
     {
         $file = file($file);
-        foreach ($file AS $row) {
+        foreach ($file as $row) {
             $columns = explode('=', $row);
-            if (count($columns) === 2 AND strpos($row, '#') !== 0) {
+            if (count($columns) === 2 and strpos($row, '#') !== 0) {
                 $key = trim($columns[0]);
                 if ($plugin != '') {
                     $key = $plugin.'.'.$key;
