@@ -109,8 +109,20 @@ class Kernel
             self::$db->connect(self::$config->get('db'));
         }
 
+        // Theme
+        $themecss = self::$get->get('themecss');
+        $themejs = self::$get->get('themejs');
+        $themefolder = self::$config->get('theme.folder');
+
         // Start the Routing
-        $route = new Route();
-        $route->route();
+        if ($themecss != '') {
+            // do NOthing
+        } elseif ($themejs != '') {
+            // do Nothing
+        } else {
+            $route = new Route();
+            $route->route();
+        }
+
     }
 }

@@ -77,21 +77,24 @@ class Language extends BaseGetterSetter
         // Check the plugin language
         $plugins = scandir('../src/Plugins');
         foreach ($plugins as $plugin) {
-            $directory = '../src/Plugins/'.$plugin.'/src/Plugins/'.$plugin.'/Language';
-            if (is_dir($directory)) {
-                if ($plugin === '..') {
-                    $plugin = '';
-                }
-                $languagefile = $directory.'/'.$language.'.txt';
-                $languagefileDE = $directory.'/de.txt';
-                if (is_file($languagefile)) {
-                    $this->loadLanguageDataFromFile($languagefile, $plugin);
-                } elseif (is_file($languagefileDE)) {
-                    $this->loadLanguageDataFromFile($languagefileDE, $plugin);
-                } else {
-                    throw new \RuntimeException('Language-File not found (Plugin: '.$plugin.')');
+            $directory = realpath('../src').'/Plugins/'.$plugin.'/src/Language';
+            if ($plugin != '.' and $plugin != '..' and $plugin != '.empty') {
+                if (is_dir($directory)) {
+                    if ($plugin === '..') {
+                        $plugin = '';
+                    }
+                    $languagefile = $directory.'/'.$language.'.txt';
+                    $languagefileDE = $directory.'/de.txt';
+                    if (is_file($languagefile)) {
+                        $this->loadLanguageDataFromFile($languagefile, $plugin);
+                    } elseif (is_file($languagefileDE)) {
+                        $this->loadLanguageDataFromFile($languagefileDE, $plugin);
+                    } else {
+                        throw new \RuntimeException('Language-File not found (Plugin: '.$plugin.')');
+                    }
                 }
             }
+
         }
     }
 

@@ -74,7 +74,7 @@ class Config extends BaseGetterSetter
      */
     private function loadConfigData($data = array(), $folder = '', $baseString = '')
     {
-        foreach ($data AS $key => $value) {
+        foreach ($data as $key => $value) {
             $startString = '';
             if ($baseString != '') {
                 $startString = $baseString.'.';
@@ -92,7 +92,7 @@ class Config extends BaseGetterSetter
                 $this->data[$startString.$key] = $value;
             }
         }
-        $this->data['rootPath'] = dirname(__DIR__);
+        $this->data['rootPath'] = realpath('../src');
         $this->data['wyraPath'] = realpath('../');
         $this->data['installed'] = false;
         if (file_exists($this->data['rootPath'].'/.installed')) {
