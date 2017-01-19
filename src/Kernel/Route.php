@@ -99,7 +99,7 @@ class Route
         }
 
         // Login when not loggedin
-        if (    Kernel::$config->get('loggedin')
+        if (Kernel::$config->get('loggedin')
             and (Kernel::$get->get('route') === 'login'
              or  Kernel::$get->get('route') === 'login/login')) {
             header('Location: /home');

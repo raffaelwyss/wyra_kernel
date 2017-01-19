@@ -72,8 +72,11 @@ class Exception
             if (Kernel::$config->get('exceptionTracing')) {
                 $data['trace'] = $exception->getTrace();
             }
+            $data['message'] = 'File: '.$data['file'].'<br>';
+            $data['message'] .= 'Line: '.$data['line'].'<br>';
+            $data['message'] .= '<pre>'.print_r($data['trace'], 1).'</pre>';
         } elseif ($data['code'] === 900 or $data['code'] === 990) {
-            $data['message'] = Kernel::$language->get('VERARBEITUNGSFEHLER');
+            $data['message'] = Kernel::$language->get('Base.VERARBEITUNGSFEHLER');
         }
 
 

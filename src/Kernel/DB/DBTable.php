@@ -209,7 +209,7 @@ class DBTable
                 }
                 $plugin = $column->foreignKey['plugin'];
                 $modelname = $column->foreignKey['model'];
-                $modelnamespace = "Wyra\\Plugin\\".$plugin."\\Model\\".$modelname;
+                $modelnamespace = "Wyra\\Plugins\\".$plugin."\\Model\\".$modelname;
                 /** @var Model $model */
                 $model = new $modelnamespace;
 

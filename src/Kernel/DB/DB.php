@@ -90,12 +90,12 @@ class DB
 
     public function updateForeignKeys()
     {
-        $pluginPath = Kernel::$config->get('rootPath').'/Plugin';
+        $pluginPath = Kernel::$config->get('rootPath').'/Plugins';
 
         $plugins = scandir($pluginPath);
         foreach ($plugins as $plugin) {
-            if ($plugin != '.' and $plugin != '..') {
-                $modelHolderName = "Wyra\\Plugin\\".$plugin."\\Model\\ModelHolder";
+            if ($plugin != '.' and $plugin != '..' and $plugin != '.empty') {
+                $modelHolderName = "Wyra\\Plugins\\".$plugin."\\Model\\ModelHolder";
                 /** @var ModelHolder $modelHolder */
                 $modelHolder = new $modelHolderName();
                 /** @var Model $model */

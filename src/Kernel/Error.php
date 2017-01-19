@@ -70,7 +70,16 @@ class Error
         $data['errstr'] = $errstr;
         $data['errfile'] = $errfile;
         $data['errline'] = $errline;
-        $data['errcontext'] = $errcontext;
+        $data['errcontext'] = print_r($errcontext, 1);
+        $data['code'] = 999;
+        if (Kernel::$config->get('debug')) {
+            $data['message'] = "ErrorNo: ".$errno."<br>";
+            $data['message'] .= "ErrorString: ".$errstr."<br>";
+            $data['message'] .= "ErrorFile: ".$errfile."<br>";
+            $data['message'] .= "ErrorLine: ".$errline."<br>";
+        } else {
+            $data['message'] = Kernel::$language->get('Base.VERARBEITUNGSFEHLER');
+        }
         if (Kernel::$get->get('Api') === 'json') {
             echo json_encode($data);
         } else {

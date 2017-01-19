@@ -112,6 +112,7 @@ class Kernel
         // Theme
         $themecss = self::$get->get('themecss');
         $themejs = self::$get->get('themejs');
+        $languagejs = self::$get->get('languagejs');
         $themefolder = self::$config->get('theme.folder');
 
         // Start the Routing
@@ -119,6 +120,8 @@ class Kernel
             // do NOthing
         } elseif ($themejs != '') {
             // do Nothing
+        } elseif ($languagejs != '') {
+            echo "var language = ".json_encode(self::$language->getAll()).";";
         } else {
             $route = new Route();
             $route->route();
