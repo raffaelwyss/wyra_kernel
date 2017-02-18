@@ -73,6 +73,9 @@ class Kernel
     /** @var null|DB */
     public static $db = null;
 
+    /** @var null|Notify */
+    public static $notify = null;
+
     /** @var null|double */
     public static $startTime = null;
     
@@ -97,6 +100,7 @@ class Kernel
         self::$post = new POST();
         self::$session = new SESSION();
         self::$db = new DB();
+        self::$notify = new Notify();
 
         // Initialize Config
         self::$config = new Config();
@@ -114,7 +118,6 @@ class Kernel
         $themejs = self::$get->get('themejs');
         $languagejs = self::$get->get('languagejs');
         $themefolder = self::$config->get('theme.folder');
-
         // Start the Routing
         if ($themecss != '') {
             // do NOthing

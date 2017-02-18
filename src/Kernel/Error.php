@@ -80,6 +80,13 @@ class Error
         } else {
             $data['message'] = Kernel::$language->get('Base.VERARBEITUNGSFEHLER');
         }
+
+        // Wenn leer soll es in diesem Fallw ie Smarty behandelt werden
+        if (empty(Kernel::$get->get('Api'))) {
+            Kernel::$get->set('Api', 'smarty');
+        }
+
+
         if (Kernel::$get->get('Api') === 'json') {
             echo json_encode($data);
         } else {

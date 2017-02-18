@@ -6,6 +6,7 @@ use PDO;
 use PDOStatement;
 use PDOException;
 use Exception;
+use Wyra\Kernel\Exception\AppException;
 use Wyra\Kernel\Kernel;
 use Wyra\Kernel\MVC\Model;
 use Wyra\Kernel\MVC\ModelHolder;
@@ -30,7 +31,7 @@ class DB
             $this->dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             $this->dbh->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         } catch (Exception $e) {
-            throw new \ErrorException(Kernel::$language->getText('DATENBENKVERBINDUNGFEHLGESCHLAGEN'));
+            throw new AppException("Base.DATENBENKVERBINDUNGFEHLGESCHLAGEN");
         }
 
     }

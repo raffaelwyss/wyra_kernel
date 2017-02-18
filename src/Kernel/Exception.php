@@ -72,13 +72,18 @@ class Exception
             if (Kernel::$config->get('exceptionTracing')) {
                 $data['trace'] = $exception->getTrace();
             }
-            $data['message'] = 'File: '.$data['file'].'<br>';
+            $data['message'] .= '<br>';
+            $data['message'] .= 'File: '.$data['file'].'<br>';
             $data['message'] .= 'Line: '.$data['line'].'<br>';
             $data['message'] .= '<pre>'.print_r($data['trace'], 1).'</pre>';
         } elseif ($data['code'] === 900 or $data['code'] === 990) {
             $data['message'] = Kernel::$language->get('Base.VERARBEITUNGSFEHLER');
         }
 
+        // Wenn leer soll es in diesem Fallw ie Smarty behandelt werden
+        if (empty(Kernel::$get->get('Api'))) {
+            Kernel::$get->set('Api', 'smarty');
+        }
 
         if (Kernel::$get->get('Api') === 'json') {
             echo json_encode($data);
